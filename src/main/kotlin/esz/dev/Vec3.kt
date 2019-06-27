@@ -3,10 +3,7 @@ package esz.dev
 import java.lang.IndexOutOfBoundsException
 import kotlin.math.sqrt
 
-class Vec3(val x: Double, val y: Double, val z: Double) {
-
-    constructor() : this(0.0, 0.0, 0.0)
-
+class Vec3(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) {
     operator fun unaryPlus() = this
 
     operator fun unaryMinus() = Vec3(-x, -y, -z)
@@ -41,7 +38,7 @@ class Vec3(val x: Double, val y: Double, val z: Double) {
 
     fun length(): Double = sqrt(squaredLength())
 
-    fun makeUnitVector():Vec3 {
+    fun makeUnitVector(): Vec3 {
         val k = 1.0 / squaredLength()
         return Vec3(x * k, y * k, z * k)
     }
