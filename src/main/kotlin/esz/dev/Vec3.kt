@@ -4,6 +4,8 @@ import java.lang.IndexOutOfBoundsException
 import kotlin.math.sqrt
 
 class Vec3(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) {
+    constructor(other: Vec3) : this(other.x, other.y, other.z)
+
     operator fun unaryPlus() = this
 
     operator fun unaryMinus() = Vec3(-x, -y, -z)

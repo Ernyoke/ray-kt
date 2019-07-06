@@ -1,6 +1,6 @@
 package esz.dev
 
-class Metal(val albedo: Vec3, f: Double) : Material {
+class Metal(val albedo: Vec3, f: Double) : Material() {
     var fuzz: Double = f
 
     init {
@@ -14,6 +14,4 @@ class Metal(val albedo: Vec3, f: Double) : Material {
         val scattered = Ray(record.p, reflected + fuzz * randomInUnitSphere())
         return ScatterRecord(albedo, scattered, scattered.direction().dot(record.normal) > 0)
     }
-
-    private fun reflect(v: Vec3, n: Vec3): Vec3 = v - 2 * v.dot(n) * n
 }
