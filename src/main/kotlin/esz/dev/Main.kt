@@ -28,29 +28,78 @@ fun color(r: Ray, world: Hitable, depth: Int): Vec3 {
     }
 }
 
+fun randomScene(): Hitable {
+    val hitableList = mutableListOf<Hitable>()
+    hitableList.add(Sphere(Vec3(0.0, -1000.0, 0.0), 1000.0, Lambertian(Vec3(0.5, 0.5, 0.5))))
+    for (a in -11..11) {
+        for (b in -11..11) {
+            val chooseMat = Random.nextDouble()
+            val center = Vec3(a + 0.9 * Random.nextDouble(), 0.2, b + 0.9 * Random.nextDouble())
+            if ((center - Vec3(4.0, 0.2, 0.0)).length() > 0.9) {
+                if (chooseMat < 0.8) { // diffuse
+                    hitableList.add(
+                        Sphere(
+                            center,
+                            0.2,
+                            Lambertian(
+                                Vec3(
+                                    Random.nextDouble() * Random.nextDouble(),
+                                    Random.nextDouble() * Random.nextDouble(),
+                                    Random.nextDouble() * Random.nextDouble()
+                                )
+                            )
+                        )
+                    )
+                } else if (chooseMat < 0.95) { // metal
+                    hitableList.add(
+                        Sphere(
+                            center,
+                            0.2,
+                            Metal(
+                                Vec3(
+                                    0.5 * (1.0 + Random.nextDouble() * Random.nextDouble()),
+                                    0.5 * (1.0 + Random.nextDouble() * Random.nextDouble()),
+                                    0.5 * (1.0 + Random.nextDouble() * Random.nextDouble())
+                                ),
+                                0.5 * Random.nextDouble()
+                            )
+                        )
+                    )
+                } else { // glass
+                    hitableList.add(Sphere(center, 0.2, Dielectric(1.5)))
+                }
+            }
+        }
+    }
+    hitableList.add(Sphere(Vec3(0.0, 1.0, 0.0), 1.0, Dielectric(1.5)))
+    hitableList.add(Sphere(Vec3(-4.0, 1.0, 0.0), 1.0, Lambertian(Vec3(0.4, 0.2, 0.1))))
+    hitableList.add(Sphere(Vec3(4.0, 1.0, 0.0), 1.0, Metal(Vec3(0.7, 0.6, 0.5), 0.0)))
+
+    return HitableList(hitableList)
+}
+
 fun main() {
-    val nx = 200
-    val ny = 100
+    val nx = 600
+    val ny = 400
     val ns = 100
 
     File("ray.ppm").printWriter().use {
         it.println("P3")
         it.println("$nx $ny")
         it.println(255)
-        val world = HitableList(
-            listOf(
-                Sphere(Vec3(0.0, 0.0, -1.0), 0.5, Lambertian(Vec3(0.1, 0.2, 0.5))),
-                Sphere(Vec3(0.0, -100.5, -1.0), 100.0, Lambertian(Vec3(0.8, 0.8, 0.0))),
-                Sphere(Vec3(1.0, 0.0, -1.0), 0.5, Metal(Vec3(0.8, 0.6, 0.3), 0.3)),
-                Sphere(Vec3(-1.0, 0.0, -1.0), 0.5, Dielectric(1.5)),
-                Sphere(Vec3(-1.0, 0.0, -1.0), -0.45, Dielectric(1.5))
-            )
-        )
+        val world = randomScene()
+        val lookFrom = Vec3(12.0, 1.0, 3.0)
+        val lookAt = Vec3(1.0, 0.7, -1.0)
+        val distToFocus = (lookFrom - lookAt).length()
+        val aperture = 0.25
         val camera = Camera(
-            Vec3(-2.0, 2.0, 1.0),
-            Vec3(0.0, 0.0, -1.0),
-            Vec3(0.0, 2.0, 0.0),
-            90.0, nx.toDouble() / ny.toDouble()
+            lookFrom,
+            lookAt,
+            Vec3(0.0, 1.0, 0.0),
+            20.0,
+            nx.toDouble() / ny.toDouble(),
+            aperture,
+            distToFocus
         )
         for (j in ny - 1 downTo 0) {
             for (i in 0 until nx) {
